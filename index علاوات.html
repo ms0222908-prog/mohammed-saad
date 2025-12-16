@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام العلاوات والترفيعات</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>نظام إدارة العلاوات والترفيعات</h1>
+        </header>
+
+        <main>
+            <!-- قسم Form إضافة موظف -->
+            <section class="card form-section">
+                <h2>بيانات الموظف</h2>
+                <form id="employeeForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="employeeName">اسم الموظف</label>
+                            <input type="text" id="employeeName" required placeholder="أدخل اسم الموظف">
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolName">اسم المدرسة</label>
+                            <input type="text" id="schoolName" required placeholder="أدخل اسم المدرسة">
+                        </div>
+                        <div class="form-group">
+                            <label for="jobTitle">العنوان الوظيفي</label>
+                            <input type="text" id="jobTitle" required placeholder="مثال: مدرس، معاون">
+                        </div>
+                        <!-- تفاصيل الدرجة والمرحلة والشهادة -->
+                        <div class="form-group">
+                            <label for="certificate">الشهادة</label>
+                            <select id="certificate">
+                                <option value="">اختر الشهادة...</option>
+                                <option value="يقرأ ويكتب">يقرأ ويكتب</option>
+                                <option value="حرفي">حرفي</option>
+                                <option value="ابتدائية">ابتدائية</option>
+                                <option value="اعدادية">اعدادية</option>
+                                <option value="بكالوريوس">بكالوريوس</option>
+                                <option value="ماجستير">ماجستير</option>
+                                <option value="دكتوراه">دكتوراه</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="grade">الدرجة</label>
+                            <input type="number" id="grade" placeholder="الدرجة">
+                        </div>
+                        <div class="form-group">
+                            <label for="stage">المرحلة</label>
+                            <input type="number" id="stage" placeholder="المرحلة">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="baseSalary">الراتب الاسمي</label>
+                            <input type="number" id="baseSalary" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="bonusAmount">مقدار العلاوة</label>
+                            <input type="number" id="bonusAmount" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastDueDate">تاريخ الاستحقاق السابق</label>
+                            <input type="date" id="lastDueDate" required>
+                        </div>
+                    </div>
+
+                    <!-- قسم كتب الشكر -->
+                    <div class="subsection">
+                        <h3>كتب الشكر والتقدير</h3>
+                        <div class="action-row">
+                            <select id="thanksType">
+                                <option value="1">كتاب شكر (شهر واحد)</option>
+                                <option value="6">كتاب رئيس الوزراء (6 أشهر)</option>
+                                <option value="12">كتاب منح قدم (سنة كاملة)</option>
+                            </select>
+                            <input type="text" id="thanksNumber" placeholder="رقم الكتاب">
+                            <input type="date" id="thanksDate">
+                            <button type="button" id="addThanksBtn" class="btn secondary">+ إضافة</button>
+                        </div>
+                        <ul id="thanksList" class="item-list"></ul>
+                        <input type="hidden" id="thanksCount" value="0">
+                    </div>
+
+                    <!-- قسم العقوبات -->
+                    <div class="subsection">
+                        <h3>العقوبات</h3>
+                        <div class="action-row">
+                            <select id="penaltyType">
+                                <option value="attention">لفت نظر (3 أشهر)</option>
+                                <option value="warning">إنذار (6 أشهر)</option>
+                                <option value="reprimand">توبيخ (سنة)</option>
+                                <option value="retirement">احالة على التقاعد</option>
+                                <option value="dismissal">فصل</option>
+                                <option value="isolation">عزل</option>
+                            </select>
+                            <input type="text" id="penaltyNumber" placeholder="رقم الكتاب">
+                            <input type="date" id="penaltyDate">
+                            <button type="button" id="addPenaltyBtn" class="btn delete">+ إضافة عقوبة</button>
+                        </div>
+                        <ul id="penaltyList" class="item-list"></ul>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="calculateBtn" class="btn primary">حساب الاستحقاق</button>
+                        <button type="submit" id="saveBtn" class="btn success" disabled>حفظ البيانات</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- قسم النتائج -->
+            <section id="resultsSection" class="card results-section hidden">
+                <h2>نتيجة الحساب</h2>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <span>الراتب الاسمي المستحق:</span>
+                        <strong id="displayTotalSalary">-</strong>
+                    </div>
+                    <div class="result-item">
+                        <span>تاريخ الاستحقاق الجديد:</span>
+                        <strong id="displayNewDueDate">-</strong>
+                    </div>
+                </div>
+                <div class="notes">
+                    <p>ملاحظة: كتاب الشكر (شهر)، كتاب رئيس الوزراء (6 أشهر)، كتاب منح قدم (سنة). العقوبات: تضاف مدة
+                        للعقوبات الادارية، بينما العقوبات النهائية (عزل، فصل، تقاعد) توقف الاستحقاق.</p>
+                </div>
+            </section>
+
+            <!-- زر التقرير والقائمة -->
+            <section class="card list-section">
+                <div class="list-header">
+                    <h2>قائمة الموظفين</h2>
+                    <div class="search-container" style="flex: 1; margin: 0 20px;">
+                        <input type="text" id="searchInput" placeholder="بحث عن اسم الموظف أو المدرسة..."
+                            class="form-control" style="width: 100%; padding: 8px;">
+                    </div>
+                    <div class="actions">
+                        <button id="exportExcelBtn" class="btn success">تصدير Excel</button>
+                        <button onclick="document.getElementById('importExcelInput').click()"
+                            class="btn secondary">استيراد Excel</button>
+                        <input type="file" id="importExcelInput" accept=".xlsx, .xls" style="display: none;" />
+                        <a href="report.html" class="btn info">تقرير المستحقين للعلاوة</a>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>ت</th>
+                                <th>الاسم</th>
+                                <th>المدرسة</th>
+                                <th>العنوان</th>
+                                <th>الراتب الاسمي</th>
+                                <th>الراتب الاسمي المستحق</th>
+                                <th>تاريخ الاستحقاق</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- سيتم ملء الجدول بواسطة javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
